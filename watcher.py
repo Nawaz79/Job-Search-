@@ -1,4 +1,4 @@
-import json, os, sys, requests
+import json, os, sys, time, requests
 
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
@@ -18,8 +18,8 @@ CITIES = ["chennai", "bengaluru", "bangalore", "hyderabad"]
 SMARTRECRUITERS_SLUGS = ["NielsenIQ", "BoschGroup", "Visa"]
 GREENHOUSE_SLUGS = ["thoughtworks", "epamsystems"]
 LEVER_SLUGS = ["xebia"]
-# (display name, full host, tenant, site id) - host/site ids are best guesses;
-# check the Actions log for "ERROR Workday" lines and correct any that fail.
+# (display name, full host, tenant, site id) - copy these from each company's
+# real careers URL: https://<tenant>.<wdN>.myworkdayjobs.com/<site id>
 WORKDAY_TARGETS = [
     ("Trimble", "trimble.wd1.myworkdayjobs.com", "trimble", "TrimbleCareers"),
     ("Kyndryl", "kyndryl.wd5.myworkdayjobs.com", "kyndryl", "KyndrylProfessionalCareers"),
@@ -41,14 +41,23 @@ def save_seen(seen):
 
 
 def send_telegram(msg):
-    r = requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        json={"chat_id": CHAT_ID, "text": msg, "disable_web_page_preview": True},
-        timeout=15,
-    )
-    if not r.ok:
+    for attempt in range(4):
+        r = requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg, "disable_web_page_preview": True},
+            timeout=15,
+        )
+        if r.ok:
+            time.sleep(1.5)  # stay under Telegram's rate limit
+            return True
+        if r.status_code == 429:
+            wait = r.json().get("parameters", {}).get("retry_after", 30)
+            print(f"Telegram rate limit, waiting {wait + 1}s...")
+            time.sleep(wait + 1)
+            continue
         print(f"ERROR Telegram {r.status_code}: {r.text}")
-    return r.ok
+        return False
+    return False
 
 
 def is_match(title, location):
@@ -99,6 +108,9 @@ def fetch_all():
             data = requests.get(
                 f"https://api.lever.co/v0/postings/{slug}?mode=json", timeout=15
             ).json()
+            if not isinstance(data, list):
+                print(f"SKIP Lever {slug}: not found on Lever ({data})")
+                continue
             for j in data:
                 loc = j.get("categories", {}).get("location", "") or ""
                 if is_match(j.get("text", ""), loc):
@@ -113,12 +125,15 @@ def fetch_all():
     for name, host, tenant, site_id in WORKDAY_TARGETS:
         try:
             for term in ["DevOps", "Release", "Cloud Operations"]:
-                res = requests.post(
+                r = requests.post(
                     f"https://{host}/wday/cxs/{tenant}/{site_id}/jobs",
                     json={"appliedFacets": {}, "limit": 20, "offset": 0, "searchText": term},
                     timeout=15,
-                ).json()
-                for j in res.get("jobPostings", []):
+                )
+                if not r.ok or "json" not in r.headers.get("content-type", ""):
+                    print(f"SKIP Workday {name}: HTTP {r.status_code}, check host/site id")
+                    break
+                for j in r.json().get("jobPostings", []):
                     loc = j.get("locationsText", "")
                     if is_match(j.get("title", ""), loc):
                         path = j.get("externalPath", "")
