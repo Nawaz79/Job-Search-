@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Practical DevOps & Release Job Radar (Chennai • Bengaluru • Hyderabad)</title>
+  <style>
+    :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #0284c7; --accent-hover: #0369a1; --text: #f8fafc; --muted: #94a3b8; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+    h1 { font-size: 1.5rem; margin: 0 0 6px 0; }
+    p.sub { color: var(--muted); margin: 0 0 20px 0; font-size: 0.92rem; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .tab { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 99px; cursor: pointer; font-weight: 600; font-size: 0.88rem; }
+    .tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    h2 { font-size: 1.05rem; color: #38bdf8; border-bottom: 1px solid var(--card); padding-bottom: 8px; margin-top: 26px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 14px; margin-top: 12px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card h3 { margin: 0 0 6px 0; font-size: 1rem; }
+    .card p { margin: 0 0 14px 0; font-size: 0.84rem; color: #cbd5e1; line-height: 1.45; }
+    a.btn { display: inline-block; text-align: center; background: var(--accent); color: #fff; text-decoration: none; padding: 9px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; }
+    a.btn:hover { background: var(--accent-hover); }
+    .badge { display: inline-block; background: var(--bg); color: #38bdf8; font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; margin-bottom: 8px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>🎯 Practical DevOps & Release Job Radar (3 Yrs Exp)</h1>
+  <p class="sub">Focused on Systems Integration, Build & Release, Cloud Ops, and IT Services roles with standard tool-based interviews.</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setCity('all', this)">All 3 Cities</button>
+    <button class="tab" onclick="setCity('Chennai', this)">Chennai</button>
+    <button class="tab" onclick="setCity('Bengaluru', this)">Bengaluru</button>
+    <button class="tab" onclick="setCity('Hyderabad', this)">Hyderabad</button>
+  </div>
+
+  <h2>1. Lighter-Interview Role Feeds (Last 24 Hours / Fresh)</h2>
+  <div class="grid" id="boards-grid"></div>
+
+  <h2>2. IT Services & Managed-Services Portals (1–2 Round Loops)</h2>
+  <div class="grid" id="companies-grid"></div>
+
+  <script>
+    const roleQuery = '(%22DevOps%20Engineer%22%20OR%20%22Systems%20Integration%22%20OR%20%22Build%20and%20Release%22%20OR%20%22Release%20Engineer%22%20OR%20%22Cloud%20Operations%22%20OR%20%22DevOps%20Support%22)%20NOT%20(%22Architect%22%20OR%20%22Principal%22%20OR%20%22Lead%22)';
+
+    const cityConfigs = {
+      all: {
+        label: "Chennai, Bengaluru & Hyderabad",
+        linkedinLoc: "India",
+        linkedinExtra: "%20AND%20(%22Chennai%22%20OR%20%22Bengaluru%22%20OR%20%22Bangalore%22%20OR%20%22Hyderabad%22)",
+        naukriUrl: "https://naukri.com",
+        indeedLoc: "India"
+      },
+      Chennai: {
+        label: "Chennai",
+        linkedinLoc: "Chennai%2C%20Tamil%20Nadu%2C%20India",
+        linkedinExtra: "",
+        naukriUrl: "https://naukri.com",
+        indeedLoc: "Chennai%2C+Tamil+Nadu"
+      },
+      Bengaluru: {
+        label: "Bengaluru",
+        linkedinLoc: "Bengaluru%2C%20Karnataka%2C%20India",
+        linkedinExtra: "",
+        naukriUrl: "https://naukri.com",
+        indeedLoc: "Bengaluru%2C+Karnataka"
+      },
+      Hyderabad: {
+        label: "Hyderabad",
+        linkedinLoc: "Hyderabad%2C%20Telangana%2C%20India",
+        linkedinExtra: "",
+        naukriUrl: "https://naukri.com",
+        indeedLoc: "Hyderabad%2C+Telangana"
+      }
+    };
+
+    function setCity(cityKey, btnEl) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      const cfg = cityConfigs[cityKey];
+
+      document.getElementById('boards-grid').innerHTML = `
+        <div class="card">
+          <div>
+            <span class="badge">LinkedIn • Past 24 Hours</span>
+            <h3>DevOps / Build & Release / Cloud Ops</h3>
+            <p>Excludes Architect/Lead roles; filtered to ${cfg.label} in the last 24 hours.</p>
+          </div>
+          <a class="btn" target="_blank" href="https://linkedin.com{roleQuery}${cfg.linkedinExtra}&location=${cfg.linkedinLoc}&f_TPR=r86400&f_E=3%2C4&sortBy=DD">Open Live Feed →</a>
+        </div>
+        <div class="card">
+          <div>
+            <span class="badge">Naukri • 3 Yrs Exp</span>
+            <h3>DevOps & Release Roles (${cfg.label})</h3>
+            <p>Locked to 3 years experience and sorted by newest date posted.</p>
+          </div>
+          <a class="btn" target="_blank" href="${cfg.naukriUrl}">Open Live Feed →</a>
+        </div>
+        <div class="card">
+          <div>
+            <span class="badge">Indeed • Sorted by Date</span>
+            <h3>DevOps Support / Environment Mgmt</h3>
+            <p>Operational & deployment-focused listings in ${cfg.label}.</p>
+          </div>
+          <a class="btn" target="_blank" href="https://indeed.com{cfg.indeedLoc}&sort=date">Open Live Feed →</a>
+        </div>
+      `;
+
+      document.getElementById('companies-grid').innerHTML = `
+        <div class="card">
+          <div>
+            <span class="badge">NTT DATA • Direct Portal</span>
+            <h3>Systems Integration & DevOps</h3>
+            <p>Direct search on NTT DATA Global Careers for Specialist & DevOps openings.</p>
+          </div>
+          <a class="btn" target="_blank" href="https://nttdata.com">Search NTT DATA →</a>
+        </div>
+        <div class="card">
+          <div>
+            <span class="badge">Tier-1 IT Services</span>
+            <h3>TCS, Cognizant, Infosys, Wipro & Accenture</h3>
+            <p>Client-delivery DevOps & Release openings in ${cfg.label} (typically 1–2 tool-based rounds).</p>
+          </div>
+          <a class="btn" target="_blank" href="https://linkedin.com{roleQuery}%20AND%20(%22TCS%22%20OR%20%22Cognizant%22%20OR%20%22Infosys%22%20OR%20%22Wipro%22%20OR%20%22Accenture%22)&location=${cfg.linkedinLoc}&sortBy=DD">Search Tier-1 Firms →</a>
+        </div>
+        <div class="card">
+          <div>
+            <span class="badge">Mid-Tier & Managed Services</span>
+            <h3>UST, Capgemini, LTIMindtree, Kyndryl & DXC</h3>
+            <p>Operations, migration, and CI/CD support roles in ${cfg.label} with practical interviews.</p>
+          </div>
+          <a class="btn" target="_blank" href="https://linkedin.com{roleQuery}%20AND%20(%22UST%22%20OR%20%22Capgemini%22%20OR%20%22LTIMindtree%22%20OR%20%22Kyndryl%22%20OR%20%22DXC%22%20OR%20%22Mphasis%22%20OR%20%22Hexaware%22)&location=${cfg.linkedinLoc}&sortBy=DD">Search Mid-Tier Firms →</a>
+        </div>
+      `;
+    }
+
+    setCity('all');
+  </script>
+</body>
+</html>
