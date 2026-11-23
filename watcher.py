@@ -1,3 +1,4 @@
+
 import json, os, sys, time, requests
 
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -42,13 +43,18 @@ def save_seen(seen):
 
 def send_telegram(msg):
     for attempt in range(4):
-        r = requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={"chat_id": CHAT_ID, "text": msg, "disable_web_page_preview": True},
-            timeout=15,
-        )
+        try:
+            r = requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                json={"chat_id": CHAT_ID, "text": msg, "disable_web_page_preview": True},
+                timeout=(10, 40),
+            )
+        except requests.exceptions.RequestException as e:
+            print(f"Telegram network error (try {attempt + 1}): {e}")
+            time.sleep(5)
+            continue
         if r.ok:
-            time.sleep(1.5)  # stay under Telegram's rate limit
+            time.sleep(1.5)
             return True
         if r.status_code == 429:
             wait = r.json().get("parameters", {}).get("retry_after", 30)
